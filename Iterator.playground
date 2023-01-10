@@ -1,0 +1,58 @@
+protocol MenuIterator {
+    func hasNext() -> Bool
+    func next() -> MenuItem?
+}
+
+protocol Menu {
+    func createIterator() -> MenuIterator
+}
+
+struct MenuItem {
+    let name: String
+    let description: String
+    let isVegetarian: Bool
+    let price: Double
+}
+
+class DinerMenuIterator: MenuIterator {
+    private let items: [MenuItem]
+    private var position = 0
+    
+    init(items: [MenuItem]) {
+        self.items = items
+    }
+    
+    func hasNext() -> Bool {
+        return position < items.count
+    }
+    
+    func next() -> MenuItem? {
+        guard hasNext() else { return nil }
+        defer { position += 1 }
+        return items[position]
+    }
+}
+
+class DinerMenu: Menu {
+    private var menuItems = [MenuItem]()
+    
+    func addItem(name: String, description: String, isVegetarian: Bool, price: Double) {
+        let menuItem = MenuItem(name: name, description: description, isVegetarian: isVegetarian, price: price)
+        menuItems.append(menuItem)
+    }
+    
+    func createIterator() -> MenuIterator {
+        return DinerMenuIterator(items: menuItems)
+    }
+}
+
+let menu = DinerMenu()
+menu.addItem(name: "Vegetarian Sandwich", description: "Lettuce & tomato on whole wheat", isVegetarian: true, price: 3.99)
+menu.addItem(name: "Italian", description: "Salami with lettuce & tomato on whole wheat", isVegetarian: false, price: 4.99)
+menu.addItem(name: "Soup", description: "Soup of the day", isVegetarian: false, price: 5.29)
+
+let iterator = menu.createIterator()
+while iterator.hasNext() {
+    let menuItem = iterator.next()
+    print("Name: \(menuItem?.name ?? ""), Description: \(menuItem?.description ?? ""), Price: $\(menuItem?.price ?? 0.0)")
+}
